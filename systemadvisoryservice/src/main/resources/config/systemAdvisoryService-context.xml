@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:flow="http://www.springframework.org/schema/webflow-config"
+       xmlns:oxm="http://www.springframework.org/schema/oxm"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/mvc
+                           http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                           http://www.springframework.org/schema/webflow-config
+                           http://www.springframework.org/schema/webflow-config/spring-webflow-config.xsd
+                           http://www.springframework.org/schema/tx 
+						   http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/oxm
+                           http://www.springframework.org/schema/oxm/spring-oxm.xsd">
+
+     <context:annotation-config />
+     
+
+	 <!-- Enables the Spring MVC @Controller programming model -->
+	 <mvc:annotation-driven>
+	
+	  <mvc:message-converters>
+            
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper">
+                    <bean class="gov.nsf.systemadvisoryservice.emberspring.jackson.EmberSystemAdvisoryObjectMapper" />
+                </property>
+            </bean>
+           
+       </mvc:message-converters>
+        
+	 </mvc:annotation-driven>
+	 
+	  <!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<mvc:resources mapping="/**" location="/ember/" />
+	
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	
+	 <context:component-scan base-package="gov.nsf.systemadvisoryservice.controller, gov.nsf.common.controller"/>
+	 
+	 <!-- Import Logging Util Context XML-->
+	 <import resource="classpath*:logging-context.xml" /> 
+	
+	 <!-- This bean resolves specific types of exceptions to corresponding logical view names for error views. -->
+	 <!-- TODO-vnayak Determine if used . Maybe be inherited from old applications -->
+       <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+         <property name="exceptionMappings">
+			 <props>
+          	 	<prop key="org.springframework.web.servlet.PageNotFound">pageNotFound</prop>
+			 </props>
+         </property>
+       </bean>      
+        
+
+	
+	<bean id="systemAdvisoryService" class="gov.nsf.systemadvisoryservice.service.SystemAdvisoryServiceImpl">
+		<property name="systemAdvisoryDao" ref="systemAdvisoryDao" ></property>
+	</bean>	
+
+	<bean id="systemAdvisoryDao" class="gov.nsf.systemadvisoryservice.dao.SystemAdvisoryDaoImpl">
+  		<property name="dataSource" ref="dataSource"/>
+  	</bean>
+
+	
+</beans>
+
